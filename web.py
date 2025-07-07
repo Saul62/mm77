@@ -474,15 +474,10 @@ def show_image_recognition():
                         st.markdown('<div class="analysis-result-container">', unsafe_allow_html=True)
                         st.markdown("## 📊 AI 分析结果")
 
-                        # 创建三列布局：原图、结果图、分析数据
-                        result_col1, result_col2, result_col3 = st.columns([1, 1, 1])
+                        # 创建两列布局：结果图、分析文字
+                        result_col1, result_col2 = st.columns([1, 1])
 
                         with result_col1:
-                            st.markdown("### 📷 原始图片")
-                            original_image = Image.open(os.path.join(image_dir, selected_image))
-                            st.image(original_image, caption=f"原图: {selected_image}", use_container_width=True)
-
-                        with result_col2:
                             st.markdown("### 🔍 检测结果图")
                             if os.path.exists(result_image_path):
                                 result_image = Image.open(result_image_path)
@@ -490,8 +485,11 @@ def show_image_recognition():
                             else:
                                 st.info("未找到对应的检测结果图片")
 
-                        with result_col3:
-                            st.markdown("### 📋 质量评估")
+                        with result_col2:
+                            st.markdown("### 📋 分析结果")
+
+                            # 显示分析文字描述
+                            st.markdown(f"**检测结果**: {analysis_results['description']}")
 
                             # 质量等级卡片
                             grade_color = {
@@ -505,48 +503,16 @@ def show_image_recognition():
                                 border-left: 4px solid {grade_color};
                                 padding: 1rem;
                                 border-radius: 8px;
-                                margin-bottom: 1rem;
+                                margin: 1rem 0;
                             ">
                                 <h4 style="color: {grade_color}; margin: 0;">
-                                    🏆 {analysis_results['quality_grade']}
+                                    🏆 质量等级: {analysis_results['quality_grade']}
                                 </h4>
                                 <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">
-                                    {analysis_results['recommendation']}
+                                    <strong>建议措施:</strong> {analysis_results['recommendation']}
                                 </p>
                             </div>
                             """, unsafe_allow_html=True)
-
-                            # 缺陷统计
-                            if analysis_results['defects_found'] > 0:
-                                st.markdown(f"**🔍 检测到 {analysis_results['defects_found']} 处缺陷**")
-                            else:
-                                st.markdown("**✅ 未检测到缺陷**")
-
-                        # 详细缺陷信息（全宽显示）
-                        if analysis_results['defects_found'] > 0:
-                            st.markdown("---")
-                            st.markdown("### 🔬 详细缺陷分析")
-
-                            # 使用expander来组织缺陷信息
-                            for i, defect in enumerate(analysis_results['defects']):
-                                severity_color = {'高': '#F44336', '中': '#FF9800', '低': '#4CAF50'}.get(defect['severity'], '#9E9E9E')
-
-                                with st.expander(f"🔍 缺陷 {i+1}: {defect['type']} (严重性: {defect['severity']})", expanded=True):
-                                    defect_col1, defect_col2, defect_col3 = st.columns([1, 1, 1])
-
-                                    with defect_col1:
-                                        st.markdown(f"**类型**: {defect['type']}")
-                                        st.markdown(f"**位置**: {defect['location']}")
-
-                                    with defect_col2:
-                                        st.markdown(f"**严重性**: <span style='color: {severity_color}'>{defect['severity']}</span>", unsafe_allow_html=True)
-                                        st.markdown(f"**置信度**: {defect['confidence']:.1%}")
-
-                                    with defect_col3:
-                                        st.markdown(f"**描述**: {defect['description']}")
-                        else:
-                            st.markdown("---")
-                            st.success("🎉 恭喜！该木材样本质量优良，未检测到明显缺陷。")
 
                         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -563,11 +529,14 @@ def show_image_recognition():
                     base_name = img_file.split('.')[0]
                     analysis_result = get_image_analysis_results(base_name)
 
+                    # 根据描述判断是否有缺陷
+                    has_defects = "半活节" in analysis_result['description'] or "腐朽" in analysis_result['description'] or "缺陷" in analysis_result['description']
+
                     results.append({
                         '图片名称': img_file,
-                        '缺陷数量': analysis_result['defects_found'],
+                        '检测结果': analysis_result['description'][:30] + "..." if len(analysis_result['description']) > 30 else analysis_result['description'],
                         '质量等级': analysis_result['quality_grade'],
-                        '状态': '正常' if analysis_result['defects_found'] == 0 else '需检查'
+                        '状态': '需检查' if has_defects else '正常'
                     })
 
                 # 显示结果表格
@@ -584,87 +553,49 @@ def get_image_analysis_results(image_base_name):
     # 预定义的分析结果数据
     analysis_data = {
         "1": {
-            "defects_found": 2,
-            "defects": [
-                {
-                    "type": "裂纹",
-                    "severity": "高",
-                    "confidence": 0.92,
-                    "location": "(156, 89)",
-                    "description": "检测到明显的纵向裂纹，长度约15cm"
-                },
-                {
-                    "type": "虫孔",
-                    "severity": "中",
-                    "confidence": 0.85,
-                    "location": "(203, 145)",
-                    "description": "发现小型虫孔，直径约3mm"
-                }
-            ],
+            "description": "检测到四个半活节和一个腐朽缺陷。半活节分布在木材表面，腐朽区域位于边缘部分，影响木材整体质量。",
             "quality_grade": "C级",
-            "recommendation": "建议进行修补处理或降级使用"
+            "recommendation": "建议进行修补处理或降级使用，特别注意腐朽区域的处理"
         },
         "2": {
-            "defects_found": 1,
-            "defects": [
-                {
-                    "type": "死节",
-                    "severity": "中",
-                    "confidence": 0.88,
-                    "location": "(178, 112)",
-                    "description": "检测到死节，直径约8mm，边缘清晰"
-                }
-            ],
+            "description": "检测到三个半活节缺陷。半活节分布较为均匀，对木材结构影响相对较小。",
             "quality_grade": "B级",
-            "recommendation": "可正常使用，注意监控死节区域"
+            "recommendation": "可正常使用，注意监控半活节区域的变化"
         },
         "3": {
-            "defects_found": 3,
-            "defects": [
-                {
-                    "type": "腐朽",
-                    "severity": "高",
-                    "confidence": 0.94,
-                    "location": "(134, 76)",
-                    "description": "检测到腐朽区域，面积约2cm²"
-                },
-                {
-                    "type": "变色",
-                    "severity": "低",
-                    "confidence": 0.76,
-                    "location": "(189, 134)",
-                    "description": "轻微变色，可能由湿度变化引起"
-                },
-                {
-                    "type": "裂纹",
-                    "severity": "中",
-                    "confidence": 0.81,
-                    "location": "(167, 98)",
-                    "description": "细微表面裂纹，深度较浅"
-                }
-            ],
-            "quality_grade": "D级",
-            "recommendation": "不建议用于结构性用途，可考虑废料处理"
+            "description": "检测到三个半活节缺陷。半活节位置分散，整体木材质量尚可。",
+            "quality_grade": "B级",
+            "recommendation": "适合一般用途，建议定期检查半活节区域"
         },
         "4": {
-            "defects_found": 1,
-            "defects": [
-                {
-                    "type": "树脂囊",
-                    "severity": "低",
-                    "confidence": 0.79,
-                    "location": "(145, 123)",
-                    "description": "检测到小型树脂囊，对结构影响较小"
-                }
-            ],
+            "description": "检测到少量缺陷，主要为轻微的表面瑕疵，对整体质量影响较小。",
             "quality_grade": "A级",
             "recommendation": "质量良好，可用于高要求应用"
         },
         "5": {
-            "defects_found": 0,
-            "defects": [],
+            "description": "未检测到明显缺陷，木材表面光滑，质量优良。",
             "quality_grade": "A+级",
             "recommendation": "优质木材，适合精密加工和高端应用"
+        },
+        "6": {
+            "description": "检测到轻微的纹理不规则，整体质量良好。",
+            "quality_grade": "A级",
+            "recommendation": "质量良好，适合多种用途"
+        },
+        "7": {
+            "description": "检测到少量小型缺陷，对结构影响很小。",
+            "quality_grade": "A级",
+            "recommendation": "质量良好，可正常使用"
+        },
+        "8": {
+            "description": "检测到一些表面瑕疵，但不影响主要结构。",
+            "quality_grade": "B级",
+            "recommendation": "适合一般建筑用途"
+        },
+        "9": {
+            "description": "检测到轻微缺陷，整体质量稳定。",
+            "quality_grade": "A级",
+            "recommendation": "质量良好，适合多种应用"
         }
     }
 
@@ -673,32 +604,22 @@ def get_image_analysis_results(image_base_name):
         return analysis_data[image_base_name]
     else:
         # 生成随机分析结果作为备用
-        defects_found = random.randint(0, 2)
-        defects = []
+        descriptions = [
+            "检测到少量缺陷，整体质量良好。",
+            "发现轻微的表面瑕疵，不影响主要功能。",
+            "检测到一些纹理不规则，但结构稳定。"
+        ]
 
-        if defects_found > 0:
-            defect_types = ['裂纹', '虫孔', '死节', '腐朽', '变色', '树脂囊']
-            for i in range(defects_found):
-                defects.append({
-                    "type": random.choice(defect_types),
-                    "severity": random.choice(['高', '中', '低']),
-                    "confidence": random.uniform(0.7, 0.95),
-                    "location": f"({random.randint(50, 300)}, {random.randint(50, 200)})",
-                    "description": f"检测到{random.choice(defect_types)}缺陷"
-                })
-
-        quality_grades = ['A+级', 'A级', 'B级', 'C级', 'D级']
+        quality_grades = ['A+级', 'A级', 'B级', 'C级']
         recommendations = [
             "优质木材，适合精密加工",
             "质量良好，可正常使用",
-            "需要注意监控",
-            "建议降级使用",
-            "不建议用于结构性用途"
+            "适合一般用途",
+            "建议降级使用"
         ]
 
         return {
-            "defects_found": defects_found,
-            "defects": defects,
+            "description": random.choice(descriptions),
             "quality_grade": random.choice(quality_grades),
             "recommendation": random.choice(recommendations)
         }
