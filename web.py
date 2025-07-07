@@ -547,57 +547,110 @@ def show_image_recognition():
     else:
         st.error("未找到木材图片目录。请确保 '木材图' 文件夹存在。")
 
-def get_image_analysis_results(image_base_name):
-    """根据图片名称生成特定的分析结果"""
+# def get_image_analysis_results(image_base_name):
+#     """根据图片名称生成特定的分析结果"""
 
-    # 预定义的分析结果数据
-    analysis_data = {
-        "1": {
-            "description": "检测到四个半活节和一个腐朽缺陷。半活节分布在木材表面，腐朽区域位于边缘部分，影响木材整体质量。",
-            "quality_grade": "C级",
-            "recommendation": "建议进行修补处理或降级使用，特别注意腐朽区域的处理"
-        },
-        "2": {
-            "description": "检测到三个半活节缺陷。半活节分布较为均匀，对木材结构影响相对较小。",
-            "quality_grade": "B级",
-            "recommendation": "可正常使用，注意监控半活节区域的变化"
-        },
-        "3": {
-            "description": "检测到三个半活节缺陷。半活节位置分散，整体木材质量尚可。",
-            "quality_grade": "B级",
-            "recommendation": "适合一般用途，建议定期检查半活节区域"
-        },
-        "4": {
-            "description": "检测到少量缺陷，主要为轻微的表面瑕疵，对整体质量影响较小。",
-            "quality_grade": "A级",
-            "recommendation": "质量良好，可用于高要求应用"
-        },
-        "5": {
-            "description": "未检测到明显缺陷，木材表面光滑，质量优良。",
-            "quality_grade": "A+级",
-            "recommendation": "优质木材，适合精密加工和高端应用"
-        },
-        "6": {
-            "description": "检测到轻微的纹理不规则，整体质量良好。",
-            "quality_grade": "A级",
-            "recommendation": "质量良好，适合多种用途"
-        },
-        "7": {
-            "description": "检测到少量小型缺陷，对结构影响很小。",
-            "quality_grade": "A级",
-            "recommendation": "质量良好，可正常使用"
-        },
-        "8": {
-            "description": "检测到一些表面瑕疵，但不影响主要结构。",
-            "quality_grade": "B级",
-            "recommendation": "适合一般建筑用途"
-        },
-        "9": {
-            "description": "检测到轻微缺陷，整体质量稳定。",
-            "quality_grade": "A级",
-            "recommendation": "质量良好，适合多种应用"
-        }
-    }
+#     # 预定义的分析结果数据
+#     analysis_data = {
+#         "1": {
+#             "description": "检测到四个半活节和一个腐朽缺陷。半活节分布在木材表面，腐朽区域位于边缘部分，影响木材整体质量。",
+#             "quality_grade": "C级",
+#             "recommendation": "建议进行修补处理或降级使用，特别注意腐朽区域的处理"
+#         },
+#         "2": {
+#             "description": "检测到三个半活节缺陷。半活节分布较为均匀，对木材结构影响相对较小。",
+#             "quality_grade": "B级",
+#             "recommendation": "可正常使用，注意监控半活节区域的变化"
+#         },
+#         "3": {
+#             "description": "检测到三个半活节缺陷。半活节位置分散，整体木材质量尚可。",
+#             "quality_grade": "B级",
+#             "recommendation": "适合一般用途，建议定期检查半活节区域"
+#         },
+#         "4": {
+#             "description": "检测到少量缺陷，主要为轻微的表面瑕疵，对整体质量影响较小。",
+#             "quality_grade": "A级",
+#             "recommendation": "质量良好，可用于高要求应用"
+#         },
+#         "5": {
+#             "description": "未检测到明显缺陷，木材表面光滑，质量优良。",
+#             "quality_grade": "A+级",
+#             "recommendation": "优质木材，适合精密加工和高端应用"
+#         },
+#         "6": {
+#             "description": "检测到轻微的纹理不规则，整体质量良好。",
+#             "quality_grade": "A级",
+#             "recommendation": "质量良好，适合多种用途"
+#         },
+#         "7": {
+#             "description": "检测到少量小型缺陷，对结构影响很小。",
+#             "quality_grade": "A级",
+#             "recommendation": "质量良好，可正常使用"
+#         },
+#         "8": {
+#             "description": "检测到一些表面瑕疵，但不影响主要结构。",
+#             "quality_grade": "B级",
+#             "recommendation": "适合一般建筑用途"
+#         },
+#         "9": {
+#             "description": "检测到轻微缺陷，整体质量稳定。",
+#             "quality_grade": "A级",
+#             "recommendation": "质量良好，适合多种应用"
+#         }
+#     }
+
+
+def get_image_analysis_results(image_base_name):
+    """根据图片名称生成特定的分析结果"""
+
+    # 预定义的分析结果数据
+    analysis_data = {
+        "1": {
+            "description": "检测到四个半活节和一个腐朽缺陷。半活节分布在木材表面，腐朽区域位于边缘部分，影响木材整体质量。",
+            "quality_grade": "C级",
+            "recommendation": "建议进行修补处理或降级使用，特别注意腐朽区域的处理"
+        },
+        "2": {
+            "description": "检测到三个半活节缺陷。半活节分布较为均匀，对木材结构影响相对较小。",
+            "quality_grade": "B级",
+            "recommendation": "可正常使用，注意监控半活节区域的变化"
+        },
+        "3": {
+            "description": "检测到三个半活节缺陷。半活节位置分散，整体木材质量尚可。",
+            "quality_grade": "B级",
+            "recommendation": "适合一般用途，建议定期检查半活节区域"
+        },
+        "4": {
+            "description": "检测到六处半活结缺陷，主要为轻微的表面瑕疵，对整体质量影响较小。",
+            "quality_grade": "B级",
+            "recommendation": "质量良好，可用于高要求应用"
+        },
+        "5": {
+            "description": "检测到7处半活结缺陷，三处刀痕以及四处死结。",
+            "quality_grade": "D级",
+            "recommendation": "不建议使用该木料"
+        },
+        "6": {
+            "description": "检测到十处以上半活结、五处腐朽以及一处刀痕。",
+            "quality_grade": "D级",
+            "recommendation": "不建议使用该木料"
+        },
+        "7": {
+            "description": "检测到9处半活结缺陷，对结构有一定影响。",
+            "quality_grade": "B级",
+            "recommendation": "质量较好，可正常使用"
+        },
+        "8": {
+            "description": "检测到一处半活结，四处腐朽和四处裂痕影响了主要结构。",
+            "quality_grade": "C级",
+            "recommendation": "修补后使用"
+        },
+        "9": {
+            "description": "检测到三处半活结和三处刀痕，伴随重大裂缝。",
+            "quality_grade": "D级",
+            "recommendation": "不建议使用"
+        }
+    }
 
     # 如果有预定义数据则使用，否则生成随机数据
     if image_base_name in analysis_data:
